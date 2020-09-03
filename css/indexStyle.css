@@ -3,6 +3,9 @@ html {
     background-color: rgb(235,235,255);
 }
 
+canvas {
+    color: red;
+}
 body{
     font-family: arial;
     font-size: 14px;
@@ -18,8 +21,18 @@ h2 {
     
 }
 
+h3 {
+    font-size: 1.5em;
+    text-align: center;
+}
+
 a {
     color: darkcyan
+}
+
+div {
+    column-count: 3;
+    column-gap: 0
 }
 
 dl {
@@ -27,4 +40,8 @@ dl {
     word-spacing: .05em;
     line-height: 1.5;
     text-align: left;
+}
+
+canvas {
+    
 }
