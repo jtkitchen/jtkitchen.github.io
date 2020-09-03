@@ -1,0 +1,30 @@
+html {
+    margin: 50px 50px;
+    background-color: rgb(235,235,255);
+}
+
+body{
+    font-family: arial;
+    font-size: 14px;
+}
+h1 {
+    font-size: 2.5em;
+    color: rgb(120, 150, 200);
+}
+
+h2 {
+    font-size: 1.75em;
+    color: dimgrey;
+    
+}
+
+a {
+    color: darkcyan
+}
+
+dl {
+    font-variant: small-caps;
+    word-spacing: .05em;
+    line-height: 1.5;
+    text-align: left;
+}
