@@ -230,7 +230,7 @@ void doLines()
     line (50, 50, 450, 450);
   }
   else {
-    stroke (0, 0, 0);
+    stroke (0, 0, 200);
     myLine (50, 250, 450, 250);
     myLine (250, 50, 250, 450);
     myLine (50, 450, 450, 50);
