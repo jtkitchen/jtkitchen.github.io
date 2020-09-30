@@ -1,0 +1,25 @@
+html {
+    margin: 50px 50px;
+    background-color: rgb(235,235,255);
+}
+
+canvas {
+    color: red;
+}
+
+head{
+    align-items: center;
+}
+body{
+    font-family: arial;
+    font-size: 14px;
+    
+}
+
+div {
+    column-width: 300px;
+}
+
+canvas {
+    
+}
