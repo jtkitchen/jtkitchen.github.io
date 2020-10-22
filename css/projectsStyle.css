@@ -1,25 +1,39 @@
 html {
+    text-align: center;
     margin: 50px 50px;
     background-color: rgb(235,235,255);
 }
 
+p {
+    text-align: center;
+}
+
 canvas {
+    text-align: center;
     color: red;
 }
 
 head{
-    align-items: center;
+   text-align: center;
 }
+
 body{
+    text-align: center;
     font-family: arial;
     font-size: 14px;
     
 }
 
 div {
+    text-align: center;
     column-width: 300px;
 }
 
-canvas {
-    
+figcaption {
+    text-align: center;
+    font-size: 12px;
+}
+
+figure {
+    text-align: center;
 }
