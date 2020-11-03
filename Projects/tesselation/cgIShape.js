@@ -179,8 +179,7 @@ function map_range(value, low1, high1, low2, high2) {
 //recursive subdivision method).
 //
 function makeSphere (slices, stacks) {
-    var pi = Math.PI;
-    var rad = 360 * (pi/180); //360 in radians
+
     var points = [];
     
     var cols = slices;
