@@ -13,7 +13,6 @@
   var mySphere = null;
   var myCone = null;
 
-
 //
 // A function that creates shapes to be drawn and creates a VAO for each
 //
@@ -21,12 +20,12 @@
 //
 function createShapes() {
 
-//    myTeapot = new Teapot();
+    myTeapot = new Teapot();
     teapotColumn = new Cylinder(20, 20);
 //    teapotBase = new Cube( 20 );
 //    teapotTop = new Cube( 20 );
     
-//    myTeapot.VAO = bindVAO (myTeapot);
+    myTeapot.VAO = bindVAO (myTeapot);
     teapotColumn.VAO = bindVAO( teapotColumn );
 //    teapotTop.VAO = bindVAO( teapotTop );
 //    teapotBase.VAO = bindVAO( teapotBase );
@@ -70,17 +69,17 @@ function setUpCamera() {
 function drawShapes() {
     
     
-//    let teapotModelMatrix = glMatrix.mat4.create();
+    let teapotModelMatrix = glMatrix.mat4.create();
     let teapotColumnModelMatrix = glMatrix.mat4.create();
-    points = [];
+    
     // drawing the teapot rotating around Y  180 degrees
-//    glMatrix.mat4.rotateY (teapotModelMatrix,  teapotModelMatrix, radians(180.0))
-    glMatrix.mat4.rotateY (teapotColumnModelMatrix,  teapotColumnModelMatrix, radians(180.0))
+    //glMatrix.mat4.rotateY (teapotModelMatrix,  teapotModelMatrix, radians(180.0))
+    //glMatrix.mat4.translate (teapotColumnModelMatrix,  teapotColumnModelMatrix, [2,2,2])
     
     // send the model matrix to the shader and draw.
-//    gl.uniformMatrix4fv (program.uModelT, false, teapotModelMatrix);
-//    gl.bindVertexArray(myTeapot.VAO);
-//    gl.drawElements(gl.TRIANGLES, myTeapot.indices.length, gl.UNSIGNED_SHORT, 0);
+    gl.uniformMatrix4fv (program.uModelT, false, teapotModelMatrix);
+    gl.bindVertexArray(myTeapot.VAO);
+    gl.drawElements(gl.TRIANGLES, myTeapot.indices.length, gl.UNSIGNED_SHORT, 0);
     
     gl.uniformMatrix4fv (program.uModelT, false, teapotColumnModelMatrix);
     gl.bindVertexArray(teapotColumn.VAO);
