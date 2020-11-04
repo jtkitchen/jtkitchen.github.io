@@ -26,31 +26,34 @@
 // We start you out with an example for the teapot.
 //
 function createShapes() {
-
+    var pedestalRes = 10;
+    var sphereRes = 20;
+    var coneRes = 20;
+    
     myTeapot = new Teapot();
-    teapotColumn = new Cylinder(20, 20);
-    teapotBase = new Cube( 20 );
-    teapotTop = new Cube( 20 );
+    teapotColumn = new Cylinder(pedestalRes, pedestalRes);
+    teapotBase = new Cube( pedestalRes );
+    teapotTop = new Cube( pedestalRes );
     
     myTeapot.VAO = bindVAO (myTeapot);
     teapotColumn.VAO = bindVAO( teapotColumn );
     teapotTop.VAO = bindVAO( teapotTop );
     teapotBase.VAO = bindVAO( teapotBase );
     
-    mySphere = new Sphere( 20, 20 );
-    sphereColumn = new Cylinder(20, 20);
-    sphereBase = new Cube( 20 );
-    sphereTop = new Cube( 20 );
+    mySphere = new Sphere( sphereRes, sphereRes );
+    sphereColumn = new Cylinder(pedestalRes, pedestalRes);
+    sphereBase = new Cube( pedestalRes );
+    sphereTop = new Cube( pedestalRes );
    
     mySphere.VAO = bindVAO ( mySphere );
     sphereColumn.VAO = bindVAO( sphereColumn );
     sphereTop.VAO = bindVAO( sphereTop );
     sphereBase.VAO = bindVAO( sphereBase );
     
-    myCone = new Cone(20, 20);
-    coneColumn = new Cylinder(20, 20);
-    coneBase = new Cube( 20 );
-    coneTop = new Cube( 20 );
+    myCone = new Cone(coneRes, coneRes);
+    coneColumn = new Cylinder(pedestalRes, pedestalRes);
+    coneBase = new Cube( pedestalRes );
+    coneTop = new Cube( pedestalRes );
     
     myCone.VAO = bindVAO ( myCone );
     coneColumn.VAO = bindVAO( coneColumn );
@@ -68,17 +71,18 @@ function setUpCamera() {
     // defualt is orthographic projection
     let projMatrix = glMatrix.mat4.create();
     //glMatrix.mat4.ortho(projMatrix, -5, 5, -5, 5, 1.0, 300.0);
-    glMatrix.mat4.perspective(projMatrix, radians(70), 1, 5, 100);
+    glMatrix.mat4.perspective(projMatrix, radians(60), 1, 5, 100);
     gl.uniformMatrix4fv (program.uProjT, false, projMatrix);
 
     
     // set up your view
     // defaut is at (0,0,-5) looking at the origin
     let viewMatrix = glMatrix.mat4.create();
-    glMatrix.mat4.lookAt(viewMatrix, [0, 2, -10], [0, 0, 0], [0, 1, 0]);
+    glMatrix.mat4.lookAt(viewMatrix, [0, 3, -11], [0, 0, 0], [0, 1, 0]);
     gl.uniformMatrix4fv (program.uViewT, false, viewMatrix);
 }
 
+//helper function for multiplying matrices in order
 function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
     let transform = glMatrix.mat4.create();
     
@@ -127,12 +131,13 @@ function drawShapes() {
     //Sphere-- change this orienation to influence the rest...
     transformMatrix(sphereModelMatrix, sphereModelMatrix, 't', 4, .8, 0, 0);
     transformMatrix(sphereModelMatrix, sphereModelMatrix, 's', 2, 2, 2, 0);
+    transformMatrix(sphereModelMatrix, sphereModelMatrix, 'rx', 0, 0, 0, radians(-90) );
     gl.uniformMatrix4fv (program.uModelT, false, sphereModelMatrix);
     gl.bindVertexArray(mySphere.VAO);
     gl.drawElements(gl.TRIANGLES, mySphere.indices.length, gl.UNSIGNED_SHORT, 0);
     
     //Sphere Column
-    transformMatrix( sphereModelMatrix, sphereColumnModelMatrix, 'rx', 0, 0, 0, radians(90) );
+    transformMatrix( sphereModelMatrix, sphereColumnModelMatrix, 'rx', 0, 0, 0, radians(180) );
     transformMatrix( sphereColumnModelMatrix, sphereColumnModelMatrix, 't', 0, 0, 1.5, 0 );
     transformMatrix( sphereColumnModelMatrix, sphereColumnModelMatrix, 's', 1, 1, 2.05, 0 );
     gl.uniformMatrix4fv (program.uModelT, false, sphereColumnModelMatrix);
@@ -140,7 +145,7 @@ function drawShapes() {
     gl.drawElements(gl.TRIANGLES, sphereColumn.indices.length, gl.UNSIGNED_SHORT, 0);
     
     //sphere Column Top
-    transformMatrix( sphereModelMatrix, sphereTopModelMatrix, 'rx', 0, 0, 0, radians(90) );
+    transformMatrix( sphereModelMatrix, sphereTopModelMatrix, 'rx', 0, 0, 0, radians(180) );
     transformMatrix( sphereTopModelMatrix, sphereTopModelMatrix, 't', 0, 0, .5, 0 );
     transformMatrix( sphereTopModelMatrix, sphereTopModelMatrix, 's', 1.5, 1.5, .25, 0 );
     gl.uniformMatrix4fv (program.uModelT, false, sphereTopModelMatrix);
@@ -148,7 +153,7 @@ function drawShapes() {
     gl.drawElements(gl.TRIANGLES, sphereTop.indices.length, gl.UNSIGNED_SHORT, 0);
     
     //sphere Column Base
-    transformMatrix( sphereModelMatrix, sphereBaseModelMatrix, 'rx', 0, 0, 0, radians(90) );
+    transformMatrix( sphereModelMatrix, sphereBaseModelMatrix, 'rx', 0, 0, 0, radians(180) );
     transformMatrix( sphereBaseModelMatrix, sphereBaseModelMatrix, 't', 0, 0, 2.65, 0 );
     transformMatrix( sphereBaseModelMatrix, sphereBaseModelMatrix, 's', 1.5, 1.5, .25, 0 );
     gl.uniformMatrix4fv (program.uModelT, false, sphereBaseModelMatrix);
