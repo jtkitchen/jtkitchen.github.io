@@ -11,7 +11,14 @@
   var teapotTop = null;
 
   var mySphere = null;
+  var sphereColumn = null;
+  var sphereBase = null;
+  var sphereTop = null;
+
   var myCone = null;
+  var coneColumn = null;
+  var coneBase = null;
+  var coneTop = null;
 
 //
 // A function that creates shapes to be drawn and creates a VAO for each
@@ -22,19 +29,33 @@ function createShapes() {
 
     myTeapot = new Teapot();
     teapotColumn = new Cylinder(20, 20);
-//    teapotBase = new Cube( 20 );
-//    teapotTop = new Cube( 20 );
+    teapotBase = new Cube( 20 );
+    teapotTop = new Cube( 20 );
     
     myTeapot.VAO = bindVAO (myTeapot);
     teapotColumn.VAO = bindVAO( teapotColumn );
-//    teapotTop.VAO = bindVAO( teapotTop );
-//    teapotBase.VAO = bindVAO( teapotBase );
+    teapotTop.VAO = bindVAO( teapotTop );
+    teapotBase.VAO = bindVAO( teapotBase );
     
-//    mySphere = new Sphere( 20, 20 );
-//    mySphere.VAO = bindVAO ( mySphere );
-//    
-//    myCone = new Cone(20, 20);
-//    myCone.VAO = bindVAO ( myCone );
+    mySphere = new Sphere( 20, 20 );
+    sphereColumn = new Cylinder(20, 20);
+    sphereBase = new Cube( 20 );
+    sphereTop = new Cube( 20 );
+   
+    mySphere.VAO = bindVAO ( mySphere );
+    sphereColumn.VAO = bindVAO( sphereColumn );
+    sphereTop.VAO = bindVAO( sphereTop );
+    sphereBase.VAO = bindVAO( sphereBase );
+    
+    myCone = new Cone(20, 20);
+    coneColumn = new Cylinder(20, 20);
+    coneBase = new Cube( 20 );
+    coneTop = new Cube( 20 );
+    
+    myCone.VAO = bindVAO ( myCone );
+    coneColumn.VAO = bindVAO( coneColumn );
+    coneTop.VAO = bindVAO( coneTop );
+    coneBase.VAO = bindVAO( coneBase );
 }
 
 
@@ -46,17 +67,34 @@ function setUpCamera() {
     // set up your projection
     // defualt is orthographic projection
     let projMatrix = glMatrix.mat4.create();
-    glMatrix.mat4.ortho(projMatrix, -5, 5, -5, 5, 1.0, 300.0);
+    //glMatrix.mat4.ortho(projMatrix, -5, 5, -5, 5, 1.0, 300.0);
+    glMatrix.mat4.perspective(projMatrix, radians(70), 1, 5, 100);
     gl.uniformMatrix4fv (program.uProjT, false, projMatrix);
 
     
     // set up your view
     // defaut is at (0,0,-5) looking at the origin
     let viewMatrix = glMatrix.mat4.create();
-    glMatrix.mat4.lookAt(viewMatrix, [0, 0, -5], [0, 0, 0], [0, 1, 0]);
+    glMatrix.mat4.lookAt(viewMatrix, [0, 2, -10], [0, 0, 0], [0, 1, 0]);
     gl.uniformMatrix4fv (program.uViewT, false, viewMatrix);
 }
 
+function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
+    let transform = glMatrix.mat4.create();
+    
+    if( type == 's' ) {
+        glMatrix.mat4.scale( matOut, matIn, [x, y, z] );
+    } else if ( type == 't' ) {
+        glMatrix.mat4.translate( matOut, matIn, [x, y, z]);
+    } else if( type == 'rx' ) {
+        glMatrix.mat4.rotateX( matOut, matIn, rad );
+    } else if( type == 'ry' ) {
+        glMatrix.mat4.rotateY( matOut, matIn, rad );
+    } else if( type == 'rz' ) {
+        glMatrix.mat4.rotateZ( matOut, matIn, rad );
+    }
+    return matOut;
+}
 
 //
 // Use this function to draw all of your shapes.
@@ -67,29 +105,122 @@ function setUpCamera() {
 // An example is shown for placing the teapot
 //
 function drawShapes() {
-    
+    //reference methods: http://glmatrix.net/docs/module-mat4.html
     
     let teapotModelMatrix = glMatrix.mat4.create();
     let teapotColumnModelMatrix = glMatrix.mat4.create();
+    let teapotTopModelMatrix = glMatrix.mat4.create();
+    let teapotBaseModelMatrix = glMatrix.mat4.create();
     
-    // drawing the teapot rotating around Y  180 degrees
-    //glMatrix.mat4.rotateY (teapotModelMatrix,  teapotModelMatrix, radians(180.0))
-    //glMatrix.mat4.translate (teapotColumnModelMatrix,  teapotColumnModelMatrix, [2,2,2])
+    let sphereModelMatrix = glMatrix.mat4.create();
+    let sphereColumnModelMatrix = glMatrix.mat4.create();
+    let sphereTopModelMatrix = glMatrix.mat4.create();
+    let sphereBaseModelMatrix = glMatrix.mat4.create();
     
-    // send the model matrix to the shader and draw.
+    let coneModelMatrix = glMatrix.mat4.create();
+    let coneColumnModelMatrix = glMatrix.mat4.create();
+    let coneTopModelMatrix = glMatrix.mat4.create();
+    let coneBaseModelMatrix = glMatrix.mat4.create();
+
+    
+    //*************************************************************************
+    //Sphere-- change this orienation to influence the rest...
+    transformMatrix(sphereModelMatrix, sphereModelMatrix, 't', 4, .8, 0, 0);
+    transformMatrix(sphereModelMatrix, sphereModelMatrix, 's', 2, 2, 2, 0);
+    gl.uniformMatrix4fv (program.uModelT, false, sphereModelMatrix);
+    gl.bindVertexArray(mySphere.VAO);
+    gl.drawElements(gl.TRIANGLES, mySphere.indices.length, gl.UNSIGNED_SHORT, 0);
+    
+    //Sphere Column
+    transformMatrix( sphereModelMatrix, sphereColumnModelMatrix, 'rx', 0, 0, 0, radians(90) );
+    transformMatrix( sphereColumnModelMatrix, sphereColumnModelMatrix, 't', 0, 0, 1.5, 0 );
+    transformMatrix( sphereColumnModelMatrix, sphereColumnModelMatrix, 's', 1, 1, 2.05, 0 );
+    gl.uniformMatrix4fv (program.uModelT, false, sphereColumnModelMatrix);
+    gl.bindVertexArray(sphereColumn.VAO);
+    gl.drawElements(gl.TRIANGLES, sphereColumn.indices.length, gl.UNSIGNED_SHORT, 0);
+    
+    //sphere Column Top
+    transformMatrix( sphereModelMatrix, sphereTopModelMatrix, 'rx', 0, 0, 0, radians(90) );
+    transformMatrix( sphereTopModelMatrix, sphereTopModelMatrix, 't', 0, 0, .5, 0 );
+    transformMatrix( sphereTopModelMatrix, sphereTopModelMatrix, 's', 1.5, 1.5, .25, 0 );
+    gl.uniformMatrix4fv (program.uModelT, false, sphereTopModelMatrix);
+    gl.bindVertexArray(sphereTop.VAO);
+    gl.drawElements(gl.TRIANGLES, sphereTop.indices.length, gl.UNSIGNED_SHORT, 0);
+    
+    //sphere Column Base
+    transformMatrix( sphereModelMatrix, sphereBaseModelMatrix, 'rx', 0, 0, 0, radians(90) );
+    transformMatrix( sphereBaseModelMatrix, sphereBaseModelMatrix, 't', 0, 0, 2.65, 0 );
+    transformMatrix( sphereBaseModelMatrix, sphereBaseModelMatrix, 's', 1.5, 1.5, .25, 0 );
+    gl.uniformMatrix4fv (program.uModelT, false, sphereBaseModelMatrix);
+    gl.bindVertexArray(sphereBase.VAO);
+    gl.drawElements(gl.TRIANGLES, sphereBase.indices.length, gl.UNSIGNED_SHORT, 0);
+    //*************************************************************************
+    
+    
+    //*************************************************************************
+    //Teapot-- did not do anything remotely hierarchical, just eyeballed it
+    transformMatrix( teapotModelMatrix, teapotModelMatrix, 'ry', 0, 0, 0, radians(180) );
     gl.uniformMatrix4fv (program.uModelT, false, teapotModelMatrix);
     gl.bindVertexArray(myTeapot.VAO);
     gl.drawElements(gl.TRIANGLES, myTeapot.indices.length, gl.UNSIGNED_SHORT, 0);
     
+    //Teapot Column
+    transformMatrix( teapotColumnModelMatrix, teapotColumnModelMatrix, 'rx', 0, 0, 0, radians(90) );
+    transformMatrix( teapotColumnModelMatrix, teapotColumnModelMatrix, 't', 0, 0, 2.5, 0 );
+    transformMatrix( teapotColumnModelMatrix, teapotColumnModelMatrix, 's', 2, 2, 4, 0 );
     gl.uniformMatrix4fv (program.uModelT, false, teapotColumnModelMatrix);
     gl.bindVertexArray(teapotColumn.VAO);
     gl.drawElements(gl.TRIANGLES, teapotColumn.indices.length, gl.UNSIGNED_SHORT, 0);
-//    
-//    gl.bindVertexArray(teapotBase.VAO);
-//    gl.drawElements(gl.TRIANGLES, teapotBase.indices.length, gl.UNSIGNED_SHORT, 0);
-//    
-//    gl.bindVertexArray(teapotTop.VAO);
-//    gl.drawElements(gl.TRIANGLES, teapotTop.indices.length, gl.UNSIGNED_SHORT, 0);
+    
+    //Teapot Column Base
+    transformMatrix( teapotBaseModelMatrix,  teapotBaseModelMatrix, 't', 0, -4.5, 0, 0);
+    transformMatrix( teapotBaseModelMatrix, teapotBaseModelMatrix, 's', 3, .5, 3, 0 );
+    gl.uniformMatrix4fv (program.uModelT, false, teapotBaseModelMatrix);
+    gl.bindVertexArray(teapotBase.VAO);
+    gl.drawElements(gl.TRIANGLES, teapotBase.indices.length, gl.UNSIGNED_SHORT, 0);
+    
+    //Teapot Column Top
+    transformMatrix( teapotTopModelMatrix,  teapotTopModelMatrix, 't', 0, -.25, 0, 0);
+    transformMatrix( teapotTopModelMatrix, teapotTopModelMatrix, 's', 3, .5, 3, 0 );
+    gl.uniformMatrix4fv (program.uModelT, false, teapotTopModelMatrix);
+    gl.bindVertexArray(teapotTop.VAO);
+    gl.drawElements(gl.TRIANGLES, teapotTop.indices.length, gl.UNSIGNED_SHORT, 0);
+    //*************************************************************************
+    
+    
+        //*************************************************************************
+    //Cone-- change this orienation to influence the rest...
+    transformMatrix(coneModelMatrix, coneModelMatrix, 't', -4, .8, 0, 0);
+    transformMatrix(coneModelMatrix, coneModelMatrix, 's', 2, 2, 2, 0);
+    transformMatrix(coneModelMatrix, coneModelMatrix, 'rx', 0, 0, 0, radians(-90) );
+    gl.uniformMatrix4fv (program.uModelT, false, coneModelMatrix);
+    gl.bindVertexArray(myCone.VAO);
+    gl.drawElements(gl.TRIANGLES, myCone.indices.length, gl.UNSIGNED_SHORT, 0);
+    
+    //Cone Column
+    transformMatrix( coneModelMatrix, coneColumnModelMatrix, 'rx', 0, 0, 0, radians(180) );
+    transformMatrix( coneColumnModelMatrix, coneColumnModelMatrix, 't', 0, 0, 1.5, 0 );
+    transformMatrix( coneColumnModelMatrix, coneColumnModelMatrix, 's', 1, 1, 2.05, 0 );
+    gl.uniformMatrix4fv (program.uModelT, false, coneColumnModelMatrix);
+    gl.bindVertexArray(coneColumn.VAO);
+    gl.drawElements(gl.TRIANGLES, coneColumn.indices.length, gl.UNSIGNED_SHORT, 0);
+    
+    //Cone Column Top
+    transformMatrix( coneModelMatrix, coneTopModelMatrix, 'rx', 0, 0, 0, radians(180) );
+    transformMatrix( coneTopModelMatrix, coneTopModelMatrix, 't', 0, 0, .5, 0 );
+    transformMatrix( coneTopModelMatrix, coneTopModelMatrix, 's', 1.5, 1.5, .25, 0 );
+    gl.uniformMatrix4fv (program.uModelT, false, coneTopModelMatrix);
+    gl.bindVertexArray(coneTop.VAO);
+    gl.drawElements(gl.TRIANGLES, coneTop.indices.length, gl.UNSIGNED_SHORT, 0);
+    
+    //Cone Column Base
+    transformMatrix( coneModelMatrix, coneBaseModelMatrix, 'rx', 0, 0, 0, radians(180) );
+    transformMatrix( coneBaseModelMatrix, coneBaseModelMatrix, 't', 0, 0, 2.65, 0 );
+    transformMatrix( coneBaseModelMatrix, coneBaseModelMatrix, 's', 1.5, 1.5, .25, 0 );
+    gl.uniformMatrix4fv (program.uModelT, false, coneBaseModelMatrix);
+    gl.bindVertexArray(coneBase.VAO);
+    gl.drawElements(gl.TRIANGLES, coneBase.indices.length, gl.UNSIGNED_SHORT, 0);
+    //*************************************************************************
     
 }
 
