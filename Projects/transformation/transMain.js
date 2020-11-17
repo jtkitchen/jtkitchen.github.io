@@ -172,7 +172,7 @@ function drawShapes() {
     //Teapot Column
     transformMatrix( teapotColumnModelMatrix, teapotColumnModelMatrix, 'rx', 0, 0, 0, radians(90) );
     transformMatrix( teapotColumnModelMatrix, teapotColumnModelMatrix, 't', 0, 0, 2.5, 0 );
-    transformMatrix( teapotColumnModelMatrix, teapotColumnModelMatrix, 's', 2, 2, 4, 0 );
+    transformMatrix( teapotColumnModelMatrix, teapotColumnModelMatrix, 's', 2.2, 2.2, 4, 0 );
     gl.uniformMatrix4fv (program.uModelT, false, teapotColumnModelMatrix);
     gl.bindVertexArray(teapotColumn.VAO);
     gl.drawElements(gl.TRIANGLES, teapotColumn.indices.length, gl.UNSIGNED_SHORT, 0);
