@@ -105,6 +105,15 @@ function setUpPhong(program) {
     // but not your view and projection transforms as
     // they are set in setUpCamera()
     //
+    program.ambientLight = [0, 0, 100];
+    program.lightPosition = [0, 0, 0];
+    program.lightColor = [100, 0, 0];
+    program.baseColor = [0, 100, 0];
+    program.specHighlightColor = [100, 100, 100];
+    program.ka = .5;
+    program.kd = .3;
+    program.ks = .2;
+    program.ke = 1;
 
     
     // set up your model transform...Add transformations
