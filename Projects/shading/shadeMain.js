@@ -106,7 +106,7 @@ function setUpPhong(program) {
     // they are set in setUpCamera()
     //
     program.ambientLight = [0, 0, 100];
-    program.lightPosition = [0, 0, 0];
+    program.lightPosition = [1, 1, 1];
     program.lightColor = [100, 0, 0];
     program.baseColor = [0, 100, 0];
     program.specHighlightColor = [100, 100, 100];
