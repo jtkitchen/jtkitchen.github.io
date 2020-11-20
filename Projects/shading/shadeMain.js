@@ -46,17 +46,17 @@ function bindVAO (shape, program) {
     gl.bindBuffer(gl.ARRAY_BUFFER, myVertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.points), gl.STATIC_DRAW);
     gl.enableVertexAttribArray(program.aVertexPosition);
-    gl.vertexAttribPointer(program.aVertexPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(program.aVertexPosition, 3, gl.FLOAT, false, 0, 0);
     
     // create, bind, and fill buffer for normal values
     // normals can be obtained from the normals member of the
     // shape object.  3 floating point values (x,y,z) per vertex are
     // stored in this array.
-    let myBaryBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, myBaryBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.bary), gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(program.aBary);
-    gl.vertexAttribPointer(program.aBary, 3, gl.FLOAT, false, 0, 0);
+    let myNormalBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, myNormalBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.points), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(program.aNormal);
+    gl.vertexAttribPointer(program.aNormal, 3, gl.FLOAT, false, 0, 0);
     
     // Setting up element array
     // element indicies can be obtained from the indicies member of the
@@ -105,24 +105,37 @@ function setUpPhong(program) {
     // but not your view and projection transforms as
     // they are set in setUpCamera()
     //
-    program.ambientLight = [0, 0, 100];
-    program.lightPosition = [1, 1, 1];
-    program.lightColor = [100, 0, 0];
-    program.baseColor = [0, 100, 0];
-    program.specHighlightColor = [100, 100, 100];
-    program.ka = .5;
-    program.kd = .3;
-    program.ks = .2;
-    program.ke = 1;
-
     
+    /*
+        I know something is wrong with the way I've done my code,
+        but I have not been able to pinpoint where I have my misunderstanding...
+    */
+    var lightPos = [3, 3, -5];
+    var ambLight = [10, 0, 140];
+    var lightClr = [140, 10, 0];
+    var baseClr = [0, 140, 10];
+    var specHighlightClr = [140, 10, 0];
+    var Ka = .5;
+    var Kd = .7;
+    var Ks = .3;
+    var Ke = 1;
+    
+    gl.uniform3fv( program.ambientLight, ambLight);
+    gl.uniform3fv( program.lightPosition, lightPos );
+    gl.uniform3fv( program.lightColor, lightClr );
+    gl.uniform3fv( program.baseColor, baseClr );
+    gl.uniform1f( program.ka, Ka);
+    gl.uniform1f( program.kd, Kd);
+    gl.uniform1f( program.ks, Ks);
+    gl.uniform1f( program.ke, Ke);
+    
+
     // set up your model transform...Add transformations
     // if you are moiving, scaling, or rotating the object.
     // Default is no transformations at all (identity matrix).
     //
     let modelMatrix = glMatrix.mat4.create();
     gl.uniformMatrix4fv (program.uModelT, false, modelMatrix);
-    
     
 }
 
@@ -144,12 +157,12 @@ function setUpCamera(program) {
     // set up your projection
     let projMatrix = glMatrix.mat4.create();
     //glMatrix.mat4.ortho(projMatrix, -5, 5, -5, 5, 1.0, 300.0);
-    glMatrix.mat4.perspective(projMatrix, radians(60), 1, 5, 100);
+    glMatrix.mat4.perspective(projMatrix, radians(40), 1, 1, 100);
     gl.uniformMatrix4fv (program.uProjT, false, projMatrix);
     
     // set up your view
     let viewMatrix = glMatrix.mat4.create();
-    glMatrix.mat4.lookAt(viewMatrix, [0, 3, -11], [0, 0, 0], [0, 1, 0]);
+    glMatrix.mat4.lookAt(viewMatrix, [0, 2, -2], [0, 0, 0], [0, 1, 0]);
     gl.uniformMatrix4fv (program.uViewT, false, viewMatrix);
 }
 
