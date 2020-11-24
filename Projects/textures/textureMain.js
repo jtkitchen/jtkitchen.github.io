@@ -20,7 +20,7 @@
 
   // what texure are you using
   // valid values = "globe", "myimage" or "proc"
-  let curTexture = "globe";
+  let curTexture = "myimage";
 
   var anglesReset = [30.0, 30.0, 0.0];
   var cube_angles = [30.0, 30.0, 0.0];
@@ -37,31 +37,30 @@
 //
 function setUpTextures(){
     
-    if( curTexture == "myimage" ) {
+    worldTexture = gl.createTexture();
+    checkerTexture = gl.createTexture();
+    
+    if( curTexture == "globe" ) {
         // get some texture space from the gpu
-        worldTexture = gl.createTexture();
+        //gl.deleteTexture(checkerTexture);
+        gl.bindTexture(gl.TEXTURE_2D, worldTexture);
         
         // load the actual image
         var worldImage = document.getElementById ('world-texture')
         worldImage.crossOrigin = "";
-        
-        // bind the texture so we can perform operations on it
-        gl.bindTexture(gl.TEXTURE_2D, worldTexture);
-        
+    
         // load the texture data
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, worldImage.width, worldImage.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, worldImage);
     }
     
-    if( curTexture == "globe" ) {
+    if( curTexture == "myimage" ) {
         // get some texture space from the gpu
-        checkerTexture = gl.createTexture();
+        //gl.deleteTexture(worldTexture);
+        gl.bindTexture( gl.TEXTURE_2D, checkerTexture);
         
         // load the actual image
         var checkerImage = document.getElementById('checker-texture')
-        checkerImage.crossOrigin = "";
-        
-        // bind the texture so we can perform operations on it
-        gl.bindTexture( gl.TEXTURE_2D, checkerTexture);
+        checkerImage.crossOrigin = "";        
         
         // load the texture data
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, checkerImage.width, checkerImage.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, checkerImage);
@@ -90,7 +89,7 @@ function drawCurrentShape () {
     // set up texture uniform & other uniforms that you might
     // have added to the shader
     
-    if( curTexture == "myimage" ) {
+    if( curTexture == "globe" ) {
         // which program are we using
         var globeProgram = sphereGlobeProgram;
         
@@ -102,7 +101,7 @@ function drawCurrentShape () {
         gl.uniform1i (globeProgram.uTheTexture, 0);
         // set up rotation uniform
         gl.uniform3fv (globeProgram.uTheta, new Float32Array(angles));
-    } else if( curTexture == "globe" ) {
+    } else if( curTexture == "myimage" ) {
         // which program are we using
         var checkerProgram = sphereGlobeProgram;
         
