@@ -111,14 +111,14 @@ function setUpPhong(program) {
         but I have not been able to pinpoint where I have my misunderstanding...
     */
     var lightPos = [3, 3, -5];
-    var ambLight = [10, 0, 140];
-    var lightClr = [140, 10, 0];
-    var baseClr = [0, 140, 10];
-    var specHighlightClr = [140, 10, 0];
-    var Ka = .5;
-    var Kd = .7;
-    var Ks = .3;
-    var Ke = 1;
+    var ambLight = [.9, .5, 0];
+    var lightClr = [.1, .9, .9];
+    var baseClr = [.1, .7, .9];
+    var specHighlightClr = [.2, .2, .2];
+    var Ka = .7;
+    var Kd = 1;
+    var Ks = 1;
+    var Ke = .1;
     
     gl.uniform3fv( program.ambientLight, ambLight);
     gl.uniform3fv( program.lightPosition, lightPos );
