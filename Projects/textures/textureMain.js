@@ -9,6 +9,7 @@
 
   // the textures
   let worldTexture;
+  let checkerTexture;
   
   // VAOs for the objects
   var mySphere = null;
@@ -36,20 +37,36 @@
 //
 function setUpTextures(){
     
-    // get some texture space from the gpu
-    worldTexture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, worldTexture);
+    if( curTexture == "myimage" ) {
+        // get some texture space from the gpu
+        worldTexture = gl.createTexture();
+        
+        // load the actual image
+        var worldImage = document.getElementById ('world-texture')
+        worldImage.crossOrigin = "";
+        
+        // bind the texture so we can perform operations on it
+        gl.bindTexture(gl.TEXTURE_2D, worldTexture);
+        
+        // load the texture data
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, worldImage.width, worldImage.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, worldImage);
+    }
     
-    // load the actual image
-    var worldImage = document.getElementById ('world-texture')
-    worldImage.crossOrigin = "";
+    if( curTexture == "globe" ) {
+        // get some texture space from the gpu
+        checkerTexture = gl.createTexture();
         
-    // bind the texture so we can perform operations on it
-    gl.bindTexture (gl.TEXTURE_2D, worldTexture);
+        // load the actual image
+        var checkerImage = document.getElementById('checker-texture')
+        checkerImage.crossOrigin = "";
         
-    // load the texture data
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, worldImage.width, worldImage.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, worldImage);
+        // bind the texture so we can perform operations on it
+        gl.bindTexture( gl.TEXTURE_2D, checkerTexture);
         
+        // load the texture data
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, checkerImage.width, checkerImage.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, checkerImage);
+    }
+    
     // set texturing parameters
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -70,21 +87,35 @@ function drawCurrentShape () {
     // you are using...The current texture is found in the global variable
     // curTexture.   If will have the value of "globe", "myimage" or "proc"
     
-    // which program are we using
-    var program = sphereGlobeProgram;
-    
-    // set up your uniform variables for drawing
-    gl.useProgram (program);
-    
     // set up texture uniform & other uniforms that you might
     // have added to the shader
-    gl.activeTexture (gl.TEXTURE0);
-    gl.bindTexture (gl.TEXTURE_2D, worldTexture);
-    gl.uniform1i (program.uTheTexture, 0);
     
-    // set up rotation uniform
-    gl.uniform3fv (program.uTheta, new Float32Array(angles));
-
+    if( curTexture == "myimage" ) {
+        // which program are we using
+        var globeProgram = sphereGlobeProgram;
+        
+        // set up your uniform variables for drawing
+        gl.useProgram (globeProgram);
+        
+        gl.activeTexture (gl.TEXTURE0);
+        gl.bindTexture (gl.TEXTURE_2D, worldTexture);
+        gl.uniform1i (globeProgram.uTheTexture, 0);
+        // set up rotation uniform
+        gl.uniform3fv (globeProgram.uTheta, new Float32Array(angles));
+    } else if( curTexture == "globe" ) {
+        // which program are we using
+        var checkerProgram = sphereGlobeProgram;
+        
+        // set up your uniform variables for drawing
+        gl.useProgram (checkerProgram);
+        
+        gl.activeTexture (gl.TEXTURE0);
+        gl.bindTexture( gl.TEXTURE_2D, checkerTexture);
+        gl.uniform1i (checkerProgram.uTheTexture, 0);
+        // set up rotation uniform
+        gl.uniform3fv (checkerProgram.uTheta, new Float32Array(angles));
+    }
+    
     //Bind the VAO and draw
     gl.bindVertexArray(object.VAO);
     gl.drawElements(gl.TRIANGLES, object.indices.length, gl.UNSIGNED_SHORT, 0);
