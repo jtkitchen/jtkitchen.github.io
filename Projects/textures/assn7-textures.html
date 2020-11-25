@@ -74,7 +74,70 @@
          out vec4 fragColor;
 
          void main(void) {
-                fragColor = texture (theTexture, theUV);
+            fragColor = texture (theTexture, theUV);
+             
+         }
+
+    </script>
+    
+         <!-- fragment Shader -->
+     <script id="checkerMap-F" type="x-shader/x-fragment">
+         #version 300 es
+
+         // Fragment shader for phong illumination model
+         // Per vertex shading
+
+         precision lowp float;
+             
+         // uvs passed in from vertex shader
+         in vec2 theUV;
+    
+         
+         // the texture to use
+         uniform sampler2D theTexture;
+         
+         // Color that is the result of this shader
+         out vec4 fragColor;
+
+         void main(void) {
+            fragColor = texture (theTexture, theUV);
+             
+         }
+
+    </script>
+    
+    <!-- fragment Shader -->
+     <script id="gradientMap-F" type="x-shader/x-fragment">
+         #version 300 es
+
+         // Fragment shader for phong illumination model
+         // Per vertex shading
+
+         precision lowp float;
+             
+         // uvs passed in from vertex shader
+         in vec2 theUV;
+    
+         
+         // the texture to use
+         uniform sampler2D theTexture;
+         
+         // Color that is the result of this shader
+         out vec4 fragColor;
+
+        //procedural program for creating a gradient
+        
+        vec4 gradient(vec2 uv) {
+          float s = uv.s;
+          float t = uv.t;
+          vec3 color = vec3(.5, .5, .7);
+          
+          return vec4(color[0] * s, color[1] - s, color[2] * t, 1.0);
+        }
+        
+         void main(void) {
+            fragColor = gradient( theUV );
+            
              
          }
 

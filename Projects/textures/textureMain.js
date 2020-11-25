@@ -6,6 +6,8 @@
 
   // The programs
   let sphereGlobeProgram;
+  let checkerProgram;
+  let gradientProgram;
 
   // the textures
   let worldTexture;
@@ -86,24 +88,32 @@ function drawCurrentShape () {
     
     // set up texture uniform & other uniforms that you might
     // have added to the shader
-    // which program are we using
-    var program = sphereGlobeProgram;
-        
-    // set up your uniform variables for drawing
-    gl.useProgram (program);
+    var program;
 
     if( curTexture == "globe" ) {
+        // which program are we using
+        program = sphereGlobeProgram;
+        // set up your uniform variables for drawing
+        gl.useProgram (program);
         
         gl.activeTexture (gl.TEXTURE0);
         gl.bindTexture (gl.TEXTURE_2D, worldTexture);
         gl.uniform1i (program.uTheTexture, 0);
         
     } else if( curTexture == "myimage" ) {
+        // which program are we using
+        program = checkerProgram;
+        // set up your uniform variables for drawing
+        gl.useProgram (program);
         
         gl.activeTexture (gl.TEXTURE1);
         gl.bindTexture( gl.TEXTURE_2D, checkerTexture);
         gl.uniform1i (program.uTheTexture, 1);
-
+    } else if( curTexture == "proc" ) {
+        // which program are we using
+        program = gradientProgram;
+        // set up your uniform variables for drawing
+        gl.useProgram (program);
     }
     
     // set up rotation uniform
@@ -317,7 +327,10 @@ function bindVAO (shape, program) {
     window.addEventListener('keydown', gotKey ,false);
 
     // Read, compile, and link your shaders
+    
     sphereGlobeProgram = initProgram('sphereMap-V', 'sphereMap-F');
+    checkerProgram = initProgram('sphereMap-V', 'checkerMap-F');
+    gradientProgram = initProgram('sphereMap-V', 'gradientMap-F');
     
     // create and bind your current object
     createShapes();
