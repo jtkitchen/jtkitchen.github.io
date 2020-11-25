@@ -20,7 +20,7 @@
 
   // what texure are you using
   // valid values = "globe", "myimage" or "proc"
-  let curTexture = "myimage";
+  let curTexture = "globe";
 
   var anglesReset = [30.0, 30.0, 0.0];
   var cube_angles = [30.0, 30.0, 0.0];
@@ -42,7 +42,6 @@ function setUpTextures(){
     
     if( curTexture == "globe" ) {
         // get some texture space from the gpu
-        //gl.deleteTexture(checkerTexture);
         gl.bindTexture(gl.TEXTURE_2D, worldTexture);
         
         // load the actual image
@@ -55,7 +54,6 @@ function setUpTextures(){
     
     if( curTexture == "myimage" ) {
         // get some texture space from the gpu
-        //gl.deleteTexture(worldTexture);
         gl.bindTexture( gl.TEXTURE_2D, checkerTexture);
         
         // load the actual image
@@ -88,32 +86,28 @@ function drawCurrentShape () {
     
     // set up texture uniform & other uniforms that you might
     // have added to the shader
-    
+    // which program are we using
+    var program = sphereGlobeProgram;
+        
+    // set up your uniform variables for drawing
+    gl.useProgram (program);
+    var unit = 0;
     if( curTexture == "globe" ) {
-        // which program are we using
-        var globeProgram = sphereGlobeProgram;
         
-        // set up your uniform variables for drawing
-        gl.useProgram (globeProgram);
-        
+        unit = 0;
         gl.activeTexture (gl.TEXTURE0);
         gl.bindTexture (gl.TEXTURE_2D, worldTexture);
-        gl.uniform1i (globeProgram.uTheTexture, 0);
-        // set up rotation uniform
-        gl.uniform3fv (globeProgram.uTheta, new Float32Array(angles));
+        gl.uniform1i (program.uTheTexture, 0);
     } else if( curTexture == "myimage" ) {
-        // which program are we using
-        var checkerProgram = sphereGlobeProgram;
-        
-        // set up your uniform variables for drawing
-        gl.useProgram (checkerProgram);
-        
-        gl.activeTexture (gl.TEXTURE0);
+        unit = 1
+        gl.activeTexture (gl.TEXTURE1);
         gl.bindTexture( gl.TEXTURE_2D, checkerTexture);
-        gl.uniform1i (checkerProgram.uTheTexture, 0);
-        // set up rotation uniform
-        gl.uniform3fv (checkerProgram.uTheta, new Float32Array(angles));
+        gl.uniform1i (program.uTheTexture, 1);
     }
+    
+    
+    // set up rotation uniform
+    gl.uniform3fv (program.uTheta, new Float32Array(angles));
     
     //Bind the VAO and draw
     gl.bindVertexArray(object.VAO);
