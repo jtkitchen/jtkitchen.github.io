@@ -20,7 +20,7 @@
 
   // what texure are you using
   // valid values = "globe", "myimage" or "proc"
-  let curTexture = "globe";
+  let curTexture = "myimage";
 
   var anglesReset = [30.0, 30.0, 0.0];
   var cube_angles = [30.0, 30.0, 0.0];
@@ -91,20 +91,20 @@ function drawCurrentShape () {
         
     // set up your uniform variables for drawing
     gl.useProgram (program);
-    var unit = 0;
+
     if( curTexture == "globe" ) {
         
-        unit = 0;
         gl.activeTexture (gl.TEXTURE0);
         gl.bindTexture (gl.TEXTURE_2D, worldTexture);
         gl.uniform1i (program.uTheTexture, 0);
+        
     } else if( curTexture == "myimage" ) {
-        unit = 1
+        
         gl.activeTexture (gl.TEXTURE1);
         gl.bindTexture( gl.TEXTURE_2D, checkerTexture);
         gl.uniform1i (program.uTheTexture, 1);
+
     }
-    
     
     // set up rotation uniform
     gl.uniform3fv (program.uTheta, new Float32Array(angles));

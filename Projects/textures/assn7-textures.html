@@ -65,15 +65,17 @@
              
          // uvs passed in from vertex shader
          in vec2 theUV;
+    
          
          // the texture to use
          uniform sampler2D theTexture;
-
+         
          // Color that is the result of this shader
          out vec4 fragColor;
 
          void main(void) {
-             fragColor = texture (theTexture, theUV);
+                fragColor = texture (theTexture, theUV);
+             
          }
 
     </script>
