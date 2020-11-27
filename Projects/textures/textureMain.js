@@ -39,10 +39,9 @@
 //
 function setUpTextures(){
     
-    worldTexture = gl.createTexture();
-    checkerTexture = gl.createTexture();
-    
     if( curTexture == "globe" ) {
+        worldTexture = gl.createTexture();
+        
         // get some texture space from the gpu
         gl.bindTexture(gl.TEXTURE_2D, worldTexture);
         
@@ -55,6 +54,8 @@ function setUpTextures(){
     }
     
     if( curTexture == "myimage" ) {
+        checkerTexture = gl.createTexture();
+        
         // get some texture space from the gpu
         gl.bindTexture( gl.TEXTURE_2D, checkerTexture);
         
