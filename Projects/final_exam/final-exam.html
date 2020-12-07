@@ -10,6 +10,9 @@
         in vec3 aVertexPosition;
         in vec3 aNormal;    // in model coords
         
+        in vec2 aUV;    // u-v coordinates
+        out vec2 theUV;  // pass uv's onto the fragment shader
+        
         // Transforms
         uniform mat4 modelT;
         uniform mat4 viewT;
@@ -58,6 +61,8 @@
             theColor = ambient + diffuse + spec;
             
             gl_Position = projT * viewT * modelT * vec4( aVertexPosition, 1.0);
+            
+            theUV = aUV;
 
         }
     </script>
@@ -78,8 +83,44 @@
 
      </script>
     
+     <script id="texture-V" type="x-shader/x-vertex">
+      attribute vec3 aVertexPosition;
+      attribute vec2 aTextureCoord;
+
+      uniform mat4 modelT;
+      uniform mat4 projT;
+
+      varying highp vec2 vTextureCoord;
+
+      void main(void) {
+        gl_Position = projT * modelT * vec4(aVertexPosition, 1.0);
+        vTextureCoord = aTextureCoord;
+      }
+    </script>
     
-     
+    <script id="texture-F" type="x-shader/x-fragment">
+         #version 300 es
+
+         // Fragment shader for phong illumination model
+         // Per vertex shading
+
+         precision lowp float;
+             
+         // uvs passed in from vertex shader
+         in vec2 theUV;
+    
+         
+         // the texture to use
+         uniform sampler2D theTexture;
+         
+         // Color that is the result of this shader
+         out vec4 fragColor;
+
+         void main(void) {
+            fragColor = texture (theTexture, theUV);
+        }
+    </script>
+    
      <!-- Matrix library and code for standard transformations -->
      <script type="text/javascript" src="gl-matrix-min.js"></script>
     

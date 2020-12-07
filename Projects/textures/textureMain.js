@@ -98,8 +98,9 @@ function drawCurrentShape () {
         gl.useProgram (program);
         
         gl.activeTexture (gl.TEXTURE0);
-        gl.bindTexture (gl.TEXTURE_2D, worldTexture);
         gl.uniform1i (program.uTheTexture, 0);
+        gl.bindTexture (gl.TEXTURE_2D, worldTexture);
+        
         
     } else if( curTexture == "myimage" ) {
         // which program are we using
@@ -108,8 +109,9 @@ function drawCurrentShape () {
         gl.useProgram (program);
         
         gl.activeTexture (gl.TEXTURE1);
-        gl.bindTexture( gl.TEXTURE_2D, checkerTexture);
         gl.uniform1i (program.uTheTexture, 1);
+        gl.bindTexture( gl.TEXTURE_2D, checkerTexture);
+        
     } else if( curTexture == "proc" ) {
         // which program are we using
         program = gradientProgram;

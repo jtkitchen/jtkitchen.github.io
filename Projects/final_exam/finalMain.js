@@ -6,6 +6,9 @@
 
   // GLSL programs
   let generalProgram;
+  let textureProgram;
+  
+  let myTexture;
 
   // VAOs for the objects
   var bigMoon = null;
@@ -47,7 +50,7 @@ function createShapes() {
     bridgeWireOutsideRight = new Cylinder( 20, 20 );
     bridgeWireOutsideLeft = new Cylinder( 20, 20 );
     
-    bigMoon.VAO = bindVAO (bigMoon, generalProgram);
+    bigMoon.VAO = bindVAO (bigMoon, textureProgram);
     smallMoon.VAO = bindVAO( smallMoon, generalProgram );
     sky.VAO = bindVAO( sky, generalProgram );
     water.VAO = bindVAO( water, generalProgram );
@@ -97,16 +100,22 @@ function setUpTextures(){
     gl.pixelStorei (gl.UNPACK_FLIP_Y_WEBGL, true);
     
     // get some texture space from the gpu
+    myTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, myTexture )
     
     // load the actual image
-    var worldImage = document.getElementById ('')
+    var worldImage = document.getElementById ('world-texture')
     worldImage.crossOrigin = "";
         
     // bind the texture so we can perform operations on it
         
     // load the texture data
-        
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, worldImage.width, worldImage.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, worldImage);
+    
     // set texturing parameters
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 }
 
 //helper function for multiplying matrices in order
@@ -149,13 +158,16 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         gl.useProgram (program);
         
         //Big Moon
-        var mScale = 40;
-        transformMatrix(bigMoonMatrix, bigMoonMatrix, 't', -20, 4, 60, 0);
-        transformMatrix(bigMoonMatrix, bigMoonMatrix, 's', mScale, mScale, 5, 0);
-        //Bind the VAO and draw
-        gl.uniformMatrix4fv (program.uModelT, false, bigMoonMatrix);
-        gl.bindVertexArray(bigMoon.VAO);
-        gl.drawElements(gl.TRIANGLES, bigMoon.indices.length, gl.UNSIGNED_SHORT, 0);
+//        
+//        var mScale = 40;
+//        transformMatrix(bigMoonMatrix, bigMoonMatrix, 't', -20, 4, 60, 0);
+//        transformMatrix(bigMoonMatrix, bigMoonMatrix, 's', mScale, mScale, 5, 0);
+//        //Bind the VAO and draw
+//        gl.uniformMatrix4fv (program.uModelT, false, bigMoonMatrix);
+//        gl.bindVertexArray(bigMoon.VAO);
+//        gl.drawElements(gl.TRIANGLES, bigMoon.indices.length, gl.UNSIGNED_SHORT, 0);
+        
+        
         
         //Sky background
         var mScale = 90;
@@ -243,6 +255,22 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
          //**************************************************************************
     }
 
+  function drawMoonShape() {
+        
+        var program = textureProgram;
+        // set up your uniform variables for drawing
+        gl.useProgram (program);
+        
+        gl.activeTexture (gl.TEXTURE0);
+        gl.bindTexture (gl.TEXTURE_2D, myTexture);
+        gl.uniform1i (program.uTheTexture, 0);
+          // set up rotation uniform
+        gl.uniform3fv (program.uTheta, new Float32Array([180, 180, 0]));
+
+        //Bind the VAO and draw
+        gl.bindVertexArray(bigMoon.VAO);
+        gl.drawElements(gl.TRIANGLES, bigMoon.indices.length, gl.UNSIGNED_SHORT, 0);
+  }
 
 
   //
@@ -257,7 +285,7 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
   //
   function initPrograms() {
       generalProgram = initProgram( "vertex-shader", "fragment-shader");
-      //generalProgram = initProgram( "phong-per-fragment-V", "phong-per-fragment-F");
+      textureProgram = initProgram( "vertex-shader", "texture-F" );
   }
 
 
@@ -275,13 +303,19 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
       gl.vertexAttribPointer(program.aVertexPosition, 3, gl.FLOAT, false, 0, 0);
       
       // add code for any additional vertex attribute
-
+      
       // create and bind bary buffer
         let myNormalBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, myNormalBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.points), gl.STATIC_DRAW);
+      
+      if( program == generalProgram ) {
         gl.enableVertexAttribArray(program.aNormal);
         gl.vertexAttribPointer(program.aNormal, 3, gl.FLOAT, false, 0, 0);
+      } else if( program == textureProgram ) {
+        gl.enableVertexAttribArray(program.aUV);
+        gl.vertexAttribPointer(program.aUV, 2, gl.FLOAT, false, 0, 0);
+      }
       
       // Setting up the IBO
       let myIndexBuffer = gl.createBuffer();
@@ -404,6 +438,8 @@ function setUpPhong(program, color) {
     // for easy access later in the code
     program.aVertexPosition = gl.getAttribLocation(program, 'aVertexPosition');
     program.aNormal = gl.getAttribLocation(program, 'aNormal');
+    program.aUV = gl.getAttribLocation( program, 'aUV');
+      
       
     program.uModelT = gl.getUniformLocation (program, 'modelT');
     program.uViewT = gl.getUniformLocation (program, 'viewT');
@@ -420,7 +456,7 @@ function setUpPhong(program, color) {
       
     return program;
   }
-
+  
 
   //
   // We call draw to render to our canvas
@@ -432,6 +468,7 @@ function setUpPhong(program, color) {
       
     // draw your shapes
     drawShapes();
+    drawMoonShape();
 
     // Clean
     gl.bindVertexArray(null);
@@ -480,12 +517,14 @@ function setUpPhong(program, color) {
     // create and bind your current object
     createShapes();
       
+    setUpTextures();
+      
     setUpCamera(generalProgram);
+//    setUpCamera(textureProgram);
       
     // set up Phong parameters
     setUpPhong(generalProgram, [.1, .9, .9]);
-    
-
+//    setUpPhong(textureProgram, [.7,.1,.2]);
     
     // do a draw
     draw();
