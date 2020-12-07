@@ -101,14 +101,14 @@ function setUpTextures(){
     
     // get some texture space from the gpu
     myTexture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, myTexture )
     
     // load the actual image
     var worldImage = document.getElementById ('world-texture')
     worldImage.crossOrigin = "";
         
     // bind the texture so we can perform operations on it
-        
+    gl.bindTexture(gl.TEXTURE_2D, myTexture );
+    
     // load the texture data
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, worldImage.width, worldImage.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, worldImage);
     
@@ -264,8 +264,6 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         gl.activeTexture (gl.TEXTURE0);
         gl.bindTexture (gl.TEXTURE_2D, myTexture);
         gl.uniform1i (program.uTheTexture, 0);
-          // set up rotation uniform
-        gl.uniform3fv (program.uTheta, new Float32Array([180, 180, 0]));
 
         //Bind the VAO and draw
         gl.bindVertexArray(bigMoon.VAO);
@@ -304,15 +302,19 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
       
       // add code for any additional vertex attribute
       
-      // create and bind bary buffer
+
+      
+      if( program == generalProgram ) {
+        // create and bind bary buffer
         let myNormalBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, myNormalBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.points), gl.STATIC_DRAW);
-      
-      if( program == generalProgram ) {
         gl.enableVertexAttribArray(program.aNormal);
         gl.vertexAttribPointer(program.aNormal, 3, gl.FLOAT, false, 0, 0);
       } else if( program == textureProgram ) {
+        let uvBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.uv), gl.STATIC_DRAW);
         gl.enableVertexAttribArray(program.aUV);
         gl.vertexAttribPointer(program.aUV, 2, gl.FLOAT, false, 0, 0);
       }
