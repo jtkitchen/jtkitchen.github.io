@@ -19,6 +19,8 @@
   var bridgeTowerRight = null;
   var bridgeWireLeft = null;
   var bridgeWireRight = null;
+  var bridgeWireOutsideLeft = null;
+  var bridgeWireOutsideRight = null;
   // textures
 
   // rotation
@@ -34,7 +36,7 @@ function createShapes() {
     bigMoon = new Sphere( 40, 40);
     smallMoon = new Sphere( 40, 40);
     sky = new Cube( 30 );
-    water = new Cylinder( 30, 30 );
+    water = new Cube( 30 );
     skyscraper = new Cube( 40 );
     
     bridgeRoad = new Cube( 30 );
@@ -42,6 +44,8 @@ function createShapes() {
     bridgeTowerRight = new Cube( 40 );
     bridgeWireLeft = new Cylinder( 20, 20 );
     bridgeWireRight = new Cylinder( 20, 20 );
+    bridgeWireOutsideRight = new Cylinder( 20, 20 );
+    bridgeWireOutsideLeft = new Cylinder( 20, 20 );
     
     bigMoon.VAO = bindVAO (bigMoon, generalProgram);
     smallMoon.VAO = bindVAO( smallMoon, generalProgram );
@@ -54,6 +58,8 @@ function createShapes() {
     bridgeTowerRight.VAO = bindVAO( bridgeTowerRight, generalProgram );
     bridgeWireLeft.VAO = bindVAO( bridgeWireLeft, generalProgram );
     bridgeWireRight.VAO = bindVAO( bridgeWireRight, generalProgram );
+    bridgeWireOutsideLeft.VAO = bindVAO( bridgeWireOutsideLeft, generalProgram );
+    bridgeWireOutsideRight.VAO = bindVAO( bridgeWireOutsideRight, generalProgram );
 }
 
 
@@ -134,6 +140,8 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         let bridgeTowerRightMatrix = glMatrix.mat4.create();
         let bridgeWireLeftMatrix = glMatrix.mat4.create();
         let bridgeWireRightMatrix = glMatrix.mat4.create();
+        let bridgeWireOutsideRightMatrix  = glMatrix.mat4.create();
+        let bridgeWireOutsideLeftMatrix = glMatrix.mat4.create();
         
         // which program are we using
         var program = generalProgram;
@@ -142,7 +150,7 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         
         //Big Moon
         var mScale = 40;
-        transformMatrix(bigMoonMatrix, bigMoonMatrix, 't', -10, -4, 60, 0);
+        transformMatrix(bigMoonMatrix, bigMoonMatrix, 't', -20, 4, 60, 0);
         transformMatrix(bigMoonMatrix, bigMoonMatrix, 's', mScale, mScale, 5, 0);
         //Bind the VAO and draw
         gl.uniformMatrix4fv (program.uModelT, false, bigMoonMatrix);
@@ -159,15 +167,16 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         gl.drawElements(gl.TRIANGLES, sky.indices.length, gl.UNSIGNED_SHORT, 0);
         
         //Water
-        var mScale = 60;
-        transformMatrix( waterMatrix, waterMatrix, 'rz', 0, 0, 0, radians(90) );
-        transformMatrix(waterMatrix, waterMatrix, 't', -40, 0, 20, 0);
-        transformMatrix(waterMatrix, waterMatrix, 's', mScale, mScale * 2, 80, 0);
-        transformMatrix( waterMatrix, waterMatrix, 'rx', 0, 0, 0, radians(90) );
+        var mScale = 4;
+        
+        transformMatrix(waterMatrix, waterMatrix, 't', 0, -4.4, 0, 0);
+        transformMatrix(waterMatrix, waterMatrix, 's', 120, .1, 20, 0);
+
         //Bind the VAO and draw
         gl.uniformMatrix4fv (program.uModelT, false, waterMatrix);
         gl.bindVertexArray(water.VAO);
         gl.drawElements(gl.TRIANGLES, water.indices.length, gl.UNSIGNED_SHORT, 0);
+        
         
         
         //*************** Draw Bridge *********************************************
@@ -214,7 +223,24 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         gl.bindVertexArray(bridgeWireLeft.VAO);
         gl.drawElements(gl.TRIANGLES, bridgeWireLeft.indices.length, gl.UNSIGNED_SHORT, 0);
         
-        //**************************************************************************
+        transformMatrix( bridgeWireOutsideLeftMatrix, bridgeWireOutsideLeftMatrix, 't', 6.4, -.4, -.7, 0);
+        transformMatrix( bridgeWireOutsideLeftMatrix, bridgeWireOutsideLeftMatrix, 'rz', 0, 0, 0, radians(45) );
+        transformMatrix( bridgeWireOutsideLeftMatrix, bridgeWireOutsideLeftMatrix, 's', .1, 5, .1 )
+        
+        
+        gl.uniformMatrix4fv (program.uModelT, false, bridgeWireOutsideLeftMatrix);
+        gl.bindVertexArray(bridgeWireOutsideLeft.VAO);
+        gl.drawElements(gl.TRIANGLES, bridgeWireOutsideLeft.indices.length, gl.UNSIGNED_SHORT, 0);
+        
+        transformMatrix( bridgeWireOutsideRightMatrix, bridgeWireOutsideRightMatrix, 't', -6.4, -.4, -.7, 0);
+        transformMatrix( bridgeWireOutsideRightMatrix, bridgeWireOutsideRightMatrix, 'rz', 0, 0, 0, radians(-45) );
+        transformMatrix( bridgeWireOutsideRightMatrix, bridgeWireOutsideRightMatrix, 's', .1, 5, .1 )
+        
+        
+        gl.uniformMatrix4fv (program.uModelT, false, bridgeWireOutsideRightMatrix);
+        gl.bindVertexArray(bridgeWireOutsideRight.VAO);
+        gl.drawElements(gl.TRIANGLES, bridgeWireOutsideRight.indices.length, gl.UNSIGNED_SHORT, 0);
+         //**************************************************************************
     }
 
 
@@ -284,14 +310,15 @@ function setUpPhong(program, color) {
     // they are set in setUpCamera()
     //
     
-    var lightPos = [-6, 1, 50];
-    var ambLight = [.9, .1, 0];
+    //var lightPos = [-20, 6, 50];
+    var lightPos = [-20, 10, 48];
+    var ambLight = [.1, .6, .4];
     //var lightClr = [.1, .9, .9];
     var lightClr = [color[0], color[1], color[2]];
-    var baseClr = [.1, .2, .7];
+    var baseClr = [.1, .2, .3];
     var specHighlightClr = [.2, .2, .2];
-    var Ka = .9;
-    var Kd = 2;
+    var Ka = .7;
+    var Kd = 1.3;
     var Ks = .4;
     var Ke = .4;
     
