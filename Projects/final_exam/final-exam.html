@@ -73,7 +73,8 @@
          precision mediump float;
          
          in vec3 theColor;
-
+         in vec2 theUV;
+         
          // Color that is the result of this shader
          out vec4 fragColor;
 
@@ -83,22 +84,99 @@
 
      </script>
     
-     <script id="texture-V" type="x-shader/x-vertex">
-      attribute vec3 aVertexPosition;
-      attribute vec2 aTextureCoord;
+    <script id="texture-F" type="x-shader/x-fragment">
+         #version 300 es
 
-      uniform mat4 modelT;
-      uniform mat4 projT;
+         // Fragment shader for phong illumination model
+         // Per vertex shading
 
-      varying highp vec2 vTextureCoord;
-
-      void main(void) {
-        gl_Position = projT * modelT * vec4(aVertexPosition, 1.0);
-        vTextureCoord = aTextureCoord;
-      }
+         precision lowp float;
+             
+         // uvs passed in from vertex shader
+         in vec3 theColor;
+         in vec2 theUV;
+    
+         
+         // the texture to use
+         uniform sampler2D theTexture;
+         
+         // Color that is the result of this shader
+         out vec4 fragColor;
+         
+         vec4 gradient(vec2 uv) {
+          float s = uv.s;
+          float t = uv.t;
+          vec3 color = vec3(.7, .7, .9);
+          
+          return vec4(color[0] * s, color[1] - s, color[2] * t, 1.0);
+         }
+        
+         void main(void) {
+            fragColor = gradient( theUV );
+            //fragColor = texture (theTexture, theUV);
+             
+         }
     </script>
     
-    <script id="texture-F" type="x-shader/x-fragment">
+    <!--trying to get basic texture to work -->
+        <!-- vertex Shader -->
+    <script id="sphereMap-V"  type="x-shader/x-vertex">
+    #version 300 es
+    precision mediump float;
+    // Vertex shader for phong illumination model
+    // Per vertex shading
+
+    // Vertex Attributes
+    in vec3 aVertexPosition; // in model coords
+    in vec2 aUV;    // u-v coordinates
+
+    // outputs
+    out vec2 theUV;  // pass uv's onto the fragment shader
+    
+    // for object rotation
+    uniform vec3 theta;
+    // Transforms
+    uniform mat4 modelT;
+    uniform mat4 viewT;
+    uniform mat4 projT;
+      
+      
+    void main()
+    {
+        // Compute the sines and cosines of each rotation
+        // about each axis
+        vec3 angles = radians( theta );
+        vec3 c = cos( angles );
+        vec3 s = sin( angles );
+
+        // rotation matrices
+        mat4 rx = mat4 ( 1.0,  0.0,  0.0,  0.0,
+                         0.0,  c.x,  s.x,  0.0,
+                         0.0, -s.x,  c.x,  0.0,
+                         0.0,  0.0,  0.0,  1.0 );
+
+        mat4 ry = mat4 ( c.y,  0.0, -s.y,  0.0,
+                         0.0,  1.0,  0.0,  0.0,
+                         s.y,  0.0,  c.y,  0.0,
+                         0.0,  0.0,  0.0,  1.0 );
+
+         mat4 rz = mat4 ( c.z,  s.z,  0.0,  0.0,
+                         -s.z,  c.z,  0.0,  0.0,
+                         0.0,  0.0,  1.0,  0.0,
+                         0.0,  0.0,  0.0,  1.0 );
+                         
+        // pass uvs to fragment shader
+        theUV = aUV;
+
+        // transform vertex to clip space
+        //gl_Position = rz * ry * rx * vec4 (aVertexPosition, 1.0);
+        gl_Position = projT * viewT * modelT * vec4( aVertexPosition, 1.0);
+    }
+
+    </script>
+    
+         <!-- fragment Shader -->
+     <script id="sphereMap-F" type="x-shader/x-fragment">
          #version 300 es
 
          // Fragment shader for phong illumination model
@@ -118,7 +196,9 @@
 
          void main(void) {
             fragColor = texture (theTexture, theUV);
-        }
+             
+         }
+
     </script>
     
      <!-- Matrix library and code for standard transformations -->
@@ -135,7 +215,7 @@
     <script type="text/javascript" src="./event.js"></script>
     
     <!-- texture images -->
-     <img id="world-texture" src="2_no_clouds_8k.jpg" style="display: none;"> </img>
+     <img id="world-texture" src="moonTexture.jpg" style="display: none;"> </img>
 
   <script type="text/javascript">
     // Call init once the webpage has loaded

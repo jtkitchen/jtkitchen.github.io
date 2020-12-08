@@ -7,6 +7,7 @@
   // GLSL programs
   let generalProgram;
   let textureProgram;
+  let redColorProgram;
   
   let myTexture;
 
@@ -27,6 +28,8 @@
   // textures
 
   // rotation
+  var sphere_angles = [90.0, 90.0, 0.0];
+  var angles = sphere_angles;
  
 //
 // create shapes and VAOs for objects.
@@ -50,9 +53,9 @@ function createShapes() {
     bridgeWireOutsideRight = new Cylinder( 20, 20 );
     bridgeWireOutsideLeft = new Cylinder( 20, 20 );
     
-    bigMoon.VAO = bindVAO (bigMoon, textureProgram);
-    smallMoon.VAO = bindVAO( smallMoon, generalProgram );
-    sky.VAO = bindVAO( sky, generalProgram );
+    bigMoon.VAO = bindVAO (bigMoon, generalProgram);
+    smallMoon.VAO = bindVAO( smallMoon, textureProgram );
+    sky.VAO = bindVAO( sky, redColorProgram );
     water.VAO = bindVAO( water, generalProgram );
     skyscraper.VAO = bindVAO( skyscraper, generalProgram );
     
@@ -153,23 +156,25 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         let bridgeWireOutsideLeftMatrix = glMatrix.mat4.create();
         
         // which program are we using
-        var program = generalProgram;
-        // set up your uniform variables for drawing
-        gl.useProgram (program);
-        
+        var program;
+        program = generalProgram;
+        gl.useProgram(program);
         //Big Moon
 //        
-//        var mScale = 40;
-//        transformMatrix(bigMoonMatrix, bigMoonMatrix, 't', -20, 4, 60, 0);
-//        transformMatrix(bigMoonMatrix, bigMoonMatrix, 's', mScale, mScale, 5, 0);
-//        //Bind the VAO and draw
-//        gl.uniformMatrix4fv (program.uModelT, false, bigMoonMatrix);
-//        gl.bindVertexArray(bigMoon.VAO);
-//        gl.drawElements(gl.TRIANGLES, bigMoon.indices.length, gl.UNSIGNED_SHORT, 0);
+        var mScale = 40;
+        transformMatrix(bigMoonMatrix, bigMoonMatrix, 't', -20, 4, 60, 0);
+        transformMatrix(bigMoonMatrix, bigMoonMatrix, 's', mScale, mScale, 5, 0);
+        //Bind the VAO and draw
+        gl.uniformMatrix4fv (program.uModelT, false, bigMoonMatrix);
+        gl.bindVertexArray(bigMoon.VAO);
+        gl.drawElements(gl.TRIANGLES, bigMoon.indices.length, gl.UNSIGNED_SHORT, 0);
         
         
         
         //Sky background
+        program = redColorProgram;
+        gl.useProgram(program);
+        
         var mScale = 90;
         transformMatrix(skyMatrix, skyMatrix, 't', 0, 0, 60, 0);
         transformMatrix(skyMatrix, skyMatrix, 's', mScale, mScale, 2, 0);
@@ -177,6 +182,9 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         gl.uniformMatrix4fv (program.uModelT, false, skyMatrix);
         gl.bindVertexArray(sky.VAO);
         gl.drawElements(gl.TRIANGLES, sky.indices.length, gl.UNSIGNED_SHORT, 0);
+        
+        program = generalProgram;
+        gl.useProgram (program);
         
         //Water
         var mScale = 4;
@@ -260,14 +268,21 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         var program = textureProgram;
         // set up your uniform variables for drawing
         gl.useProgram (program);
-        
+        let smallMoonMatrix = glMatrix.mat4.create();
+      
+//        var mScale = 1
+//        transformMatrix(smallMoonMatrix, smallMoonMatrix, 't', 0, 4, 0, 0);
+//        transformMatrix(smallMoonMatrix, smallMoonMatrix, 's', mScale, mScale, mScale, 0);
+
         gl.activeTexture (gl.TEXTURE0);
         gl.bindTexture (gl.TEXTURE_2D, myTexture);
         gl.uniform1i (program.uTheTexture, 0);
-
+        gl.uniform3fv (program.uTheta, new Float32Array(angles));
+        gl.uniformMatrix4fv (program.uModelT, false, smallMoonMatrix);
+      
         //Bind the VAO and draw
-        gl.bindVertexArray(bigMoon.VAO);
-        gl.drawElements(gl.TRIANGLES, bigMoon.indices.length, gl.UNSIGNED_SHORT, 0);
+        gl.bindVertexArray(smallMoon.VAO);
+        gl.drawElements(gl.TRIANGLES, smallMoon.indices.length, gl.UNSIGNED_SHORT, 0);
   }
 
 
@@ -283,7 +298,8 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
   //
   function initPrograms() {
       generalProgram = initProgram( "vertex-shader", "fragment-shader");
-      textureProgram = initProgram( "vertex-shader", "texture-F" );
+      textureProgram = initProgram('sphereMap-V', 'sphereMap-F');
+      redColorProgram = initProgram( "vertex-shader", "fragment-shader");
   }
 
 
@@ -304,7 +320,7 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
       
 
       
-      if( program == generalProgram ) {
+      if( program == generalProgram || program == redColorProgram ) {
         // create and bind bary buffer
         let myNormalBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, myNormalBuffer);
@@ -332,7 +348,7 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
       return theVAO;
   }
 
-function setUpPhong(program, color) {
+function setUpPhong(program, color, lightPosition) {
     
 
     // Recall that you must set the program to be current using
@@ -346,8 +362,8 @@ function setUpPhong(program, color) {
     // they are set in setUpCamera()
     //
     
-    //var lightPos = [-20, 6, 50];
-    var lightPos = [-20, 10, 48];
+    //var lightPos = [-20, 10, 48];
+    var lightPos = [lightPosition[0], lightPosition[1], lightPosition[2]];
     var ambLight = [.1, .6, .4];
     //var lightClr = [.1, .9, .9];
     var lightClr = [color[0], color[1], color[2]];
@@ -441,6 +457,8 @@ function setUpPhong(program, color) {
     program.aVertexPosition = gl.getAttribLocation(program, 'aVertexPosition');
     program.aNormal = gl.getAttribLocation(program, 'aNormal');
     program.aUV = gl.getAttribLocation( program, 'aUV');
+    program.uTheTexture = gl.getUniformLocation (program, 'theTexture');
+    program.uTheta = gl.getUniformLocation (program, 'theta');
       
       
     program.uModelT = gl.getUniformLocation (program, 'modelT');
@@ -522,11 +540,13 @@ function setUpPhong(program, color) {
     setUpTextures();
       
     setUpCamera(generalProgram);
-//    setUpCamera(textureProgram);
+    setUpCamera(redColorProgram);
+    setUpCamera(textureProgram);
       
     // set up Phong parameters
-    setUpPhong(generalProgram, [.1, .9, .9]);
-//    setUpPhong(textureProgram, [.7,.1,.2]);
+    setUpPhong(generalProgram, [.1, .9, .9], [-20, 10, 48]);
+    setUpPhong(redColorProgram, [1,.2,.2], [0, -20, 30]);
+    //setUpPhong(textureProgram, [1,1,1], [0,0,0] );
     
     // do a draw
     draw();
