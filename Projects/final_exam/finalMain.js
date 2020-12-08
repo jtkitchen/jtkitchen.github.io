@@ -9,14 +9,14 @@
   let textureProgram;
   let redColorProgram;
   
-  let myTexture;
 
   // VAOs for the objects
   var bigMoon = null;
   var smallMoon = null;
   var sky = null;
   var water = null;
-  var skyscraper = null;
+  var skyscraper1 = null;
+  var skyscraper2 = null;
 
   var bridgeRoad = null;
   var bridgeTowerLeft = null;
@@ -25,7 +25,11 @@
   var bridgeWireRight = null;
   var bridgeWireOutsideLeft = null;
   var bridgeWireOutsideRight = null;
+
   // textures
+  let bigMoonTexture;
+  let seaTexture;
+  let skyscraperTexture;
 
   // rotation
   var sphere_angles = [90.0, 90.0, 0.0];
@@ -43,7 +47,8 @@ function createShapes() {
     smallMoon = new Sphere( 40, 40);
     sky = new Cube( 30 );
     water = new Cube( 30 );
-    skyscraper = new Cube( 40 );
+    skyscraper1 = new Cube( 40 );
+    skyscraper2 = new Cube( 40 );
     
     bridgeRoad = new Cube( 30 );
     bridgeTowerLeft = new Cube( 40 );
@@ -56,8 +61,9 @@ function createShapes() {
     bigMoon.VAO = bindVAO (bigMoon, generalProgram);
     smallMoon.VAO = bindVAO( smallMoon, textureProgram );
     sky.VAO = bindVAO( sky, redColorProgram );
-    water.VAO = bindVAO( water, generalProgram );
-    skyscraper.VAO = bindVAO( skyscraper, generalProgram );
+    water.VAO = bindVAO( water, textureProgram );
+    skyscraper1.VAO = bindVAO( skyscraper1, textureProgram );
+    skyscraper2.VAO = bindVAO( skyscraper2, textureProgram );
     
     bridgeRoad.VAO = bindVAO( bridgeRoad, generalProgram );
     bridgeTowerLeft.VAO = bindVAO( bridgeTowerLeft, generalProgram );
@@ -81,12 +87,12 @@ function setUpCamera(program) {
     // set up your projection
     let projMatrix = glMatrix.mat4.create();
     //glMatrix.mat4.ortho(projMatrix, -5, 5, -5, 5, 1.0, 300.0);
-    glMatrix.mat4.perspective(projMatrix, radians(60), 1, 5, 100);
+    glMatrix.mat4.perspective(projMatrix, radians(80), 1, 3, 100);
     gl.uniformMatrix4fv (program.uProjT, false, projMatrix);
     
     // set up your view
     let viewMatrix = glMatrix.mat4.create();
-    glMatrix.mat4.lookAt(viewMatrix, [0, 3, -10], [0, 0, 0], [0, 1, 0]);
+    glMatrix.mat4.lookAt(viewMatrix, [2, 2, -10], [0, 0, 0], [0, 1, 0]);
     gl.uniformMatrix4fv (program.uViewT, false, viewMatrix);
 }
 
@@ -102,18 +108,46 @@ function setUpTextures(){
     // flip Y for WebGL
     gl.pixelStorei (gl.UNPACK_FLIP_Y_WEBGL, true);
     
+    //Moon Texture
     // get some texture space from the gpu
-    myTexture = gl.createTexture();
+    bigMoonTexture = gl.createTexture();
+    seaTexture = gl.createTexture();
+    skyscraperTexture = gl.createTexture();
     
     // load the actual image
     var worldImage = document.getElementById ('world-texture')
     worldImage.crossOrigin = "";
-        
+    
     // bind the texture so we can perform operations on it
-    gl.bindTexture(gl.TEXTURE_2D, myTexture );
+    gl.bindTexture(gl.TEXTURE_2D, bigMoonTexture );
     
     // load the texture data
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, worldImage.width, worldImage.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, worldImage);
+    
+    // set texturing parameters
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    
+    // Water Texture
+    //Create and load sea IMage texture
+    var seaImage = document.getElementById('water-texture');
+    seaImage.crossOrigin = "";
+    
+    gl.bindTexture(gl.TEXTURE_2D, seaTexture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, seaImage.width, seaImage.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, seaImage);
+    
+    // set texturing parameters
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    
+    // Skyscraper Texture
+    var skyscraperImage = document.getElementById('skyscraper-texture');
+    skyscraperImage.crossOrigin = "";
+    
+    gl.bindTexture(gl.TEXTURE_2D, skyscraperTexture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, skyscraperImage.width, skyscraperImage.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, skyscraperImage);
     
     // set texturing parameters
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -160,10 +194,10 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         program = generalProgram;
         gl.useProgram(program);
         //Big Moon
-//        
+        
         var mScale = 4;
-        transformMatrix(bigMoonMatrix, bigMoonMatrix, 't', 10, 4, 30, 0);
-        transformMatrix(bigMoonMatrix, bigMoonMatrix, 's', mScale, mScale, 5, 0);
+        transformMatrix(bigMoonMatrix, bigMoonMatrix, 't', 15, 4, 30, 0);
+        transformMatrix(bigMoonMatrix, bigMoonMatrix, 's', mScale, mScale, 3, 0);
         //Bind the VAO and draw
         gl.uniformMatrix4fv (program.uModelT, false, bigMoonMatrix);
         gl.bindVertexArray(bigMoon.VAO);
@@ -175,8 +209,8 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         program = redColorProgram;
         gl.useProgram(program);
         
-        var mScale = 90;
-        transformMatrix(skyMatrix, skyMatrix, 't', 0, 0, 60, 0);
+        var mScale = 100;
+        transformMatrix(skyMatrix, skyMatrix, 't', -10, 0, 50, 0);
         transformMatrix(skyMatrix, skyMatrix, 's', mScale, mScale, 2, 0);
         //Bind the VAO and draw
         gl.uniformMatrix4fv (program.uModelT, false, skyMatrix);
@@ -184,19 +218,7 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         gl.drawElements(gl.TRIANGLES, sky.indices.length, gl.UNSIGNED_SHORT, 0);
         
         program = generalProgram;
-        gl.useProgram (program);
-        
-        //Water
-        var mScale = 4;
-        
-        transformMatrix(waterMatrix, waterMatrix, 't', 0, -4.4, 0, 0);
-        transformMatrix(waterMatrix, waterMatrix, 's', 120, .1, 20, 0);
-
-        //Bind the VAO and draw
-        gl.uniformMatrix4fv (program.uModelT, false, waterMatrix);
-        gl.bindVertexArray(water.VAO);
-        gl.drawElements(gl.TRIANGLES, water.indices.length, gl.UNSIGNED_SHORT, 0);
-        
+        gl.useProgram (program);        
         
         
         //*************** Draw Bridge *********************************************
@@ -265,25 +287,83 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
 
   function drawMoonShape() {
         
+      
         var program = textureProgram;
         // set up your uniform variables for drawing
         gl.useProgram (program);
-        let smallMoonMatrix = glMatrix.mat4.create();
       
-        var mScale = 4
-        transformMatrix(smallMoonMatrix, smallMoonMatrix, 't', -3, 4, 4, 0);
+        //draw the larger moon with it's texture
+        let smallMoonMatrix = glMatrix.mat4.create();
+        let waterMatrix = glMatrix.mat4.create();
+        let skyscraperMatrix = glMatrix.mat4.create();
+        let skyscraper2Matrix = glMatrix.mat4.create();
+      
+        var mScale = 14
+        transformMatrix(smallMoonMatrix, smallMoonMatrix, 't', -10, 8, 16, 0);
         transformMatrix(smallMoonMatrix, smallMoonMatrix, 's', mScale, mScale, mScale, 0);
 
         gl.activeTexture (gl.TEXTURE0);
-        gl.bindTexture (gl.TEXTURE_2D, myTexture);
+        gl.bindTexture (gl.TEXTURE_2D, bigMoonTexture);
         gl.uniform1i (program.uTheTexture, 0);
         gl.uniform3fv (program.uTheta, new Float32Array(angles));
         gl.uniformMatrix4fv (program.uModelT, false, smallMoonMatrix);
-        gl.uniform4fv (program.colorChange, [.6,.6,.6,1]);
+        gl.uniform4fv (program.colorChange, [.4,.4,.4,1]);
       
         //Bind the VAO and draw
         gl.bindVertexArray(smallMoon.VAO);
         gl.drawElements(gl.TRIANGLES, smallMoon.indices.length, gl.UNSIGNED_SHORT, 0);
+      
+      
+        //draw the water with texture
+        var mScale = 4;
+        
+        transformMatrix( waterMatrix, waterMatrix, 'rx', 0,0,0, radians(110));
+        transformMatrix(waterMatrix, waterMatrix, 't', 0,10,4,0);
+        transformMatrix(waterMatrix, waterMatrix, 's', 30,40,.4,0);
+        transformMatrix( waterMatrix, waterMatrix, 'rz', 0,0,0, radians(90));
+
+        //Bind the VAO and draw
+        gl.activeTexture (gl.TEXTURE1);
+        gl.bindTexture (gl.TEXTURE_2D, seaTexture);
+        gl.uniform1i (program.uTheTexture, 1);
+        gl.uniform3fv (program.uTheta, new Float32Array(angles));
+        gl.uniformMatrix4fv (program.uModelT, false, waterMatrix);
+        gl.uniform4fv (program.colorChange, [.3,.3,.4,1]);
+      
+        gl.bindVertexArray(water.VAO);
+        gl.drawElements(gl.TRIANGLES, water.indices.length, gl.UNSIGNED_SHORT, 0);
+      
+        // draw the skyscraper with it's texture
+        transformMatrix( skyscraperMatrix, skyscraperMatrix, 't', -4,0, 5,0);
+        transformMatrix( skyscraperMatrix, skyscraperMatrix, 's', 2,8,2,0);
+        transformMatrix( skyscraperMatrix, skyscraperMatrix, 'ry', 0,0,0, radians(40));
+
+        //Bind the VAO and draw
+        gl.activeTexture (gl.TEXTURE2);
+        gl.bindTexture (gl.TEXTURE_2D, skyscraperTexture);
+        gl.uniform1i (program.uTheTexture, 2);
+        gl.uniform3fv (program.uTheta, new Float32Array(angles));
+        gl.uniformMatrix4fv (program.uModelT, false, skyscraperMatrix);
+        gl.uniform4fv (program.colorChange, [.4,.4,.5,1]);
+      
+        gl.bindVertexArray(skyscraper1.VAO);
+        gl.drawElements(gl.TRIANGLES, skyscraper1.indices.length, gl.UNSIGNED_SHORT, 0);
+      
+        //draw a second skyscraper
+        transformMatrix( skyscraper2Matrix, skyscraper2Matrix, 't', 2,-1, 5,0);
+        transformMatrix( skyscraper2Matrix, skyscraper2Matrix, 's', 2,6,2,0);
+        transformMatrix( skyscraper2Matrix, skyscraper2Matrix, 'ry', 0,0,0, radians(20));
+
+        //Bind the VAO and draw
+        gl.activeTexture (gl.TEXTURE2);
+        gl.bindTexture (gl.TEXTURE_2D, skyscraperTexture);
+        gl.uniform1i (program.uTheTexture, 2);
+        gl.uniform3fv (program.uTheta, new Float32Array(angles));
+        gl.uniformMatrix4fv (program.uModelT, false, skyscraper2Matrix);
+        gl.uniform4fv (program.colorChange, [.4,.4,.5,1]);
+      
+        gl.bindVertexArray(skyscraper2.VAO);
+        gl.drawElements(gl.TRIANGLES, skyscraper2.indices.length, gl.UNSIGNED_SHORT, 0);
   }
 
 
@@ -365,14 +445,14 @@ function setUpPhong(program, color, lightPosition) {
     
     //var lightPos = [-20, 10, 48];
     var lightPos = [lightPosition[0], lightPosition[1], lightPosition[2]];
-    var ambLight = [.1, .6, .4];
+    var ambLight = [.1, .6, .8];
     //var lightClr = [.1, .9, .9];
     var lightClr = [color[0], color[1], color[2]];
     var baseClr = [.1, .2, .3];
     var specHighlightClr = [.2, .2, .2];
-    var Ka = .7;
-    var Kd = 1.3;
-    var Ks = .4;
+    var Ka = .2;
+    var Kd = 1.4;
+    var Ks = 1;
     var Ke = .4;
     
     gl.uniform3fv( program.ambientLight, ambLight);
@@ -547,7 +627,7 @@ function setUpPhong(program, color, lightPosition) {
     setUpCamera(textureProgram);
       
     // set up Phong parameters
-    setUpPhong(generalProgram, [.1, .9, .9], [-40, 20, 38]);
+    setUpPhong(generalProgram, [.9, .4, .6], [-40, 20, 38]);
     setUpPhong(redColorProgram, [1,.2,.2], [0, -20, 30]);
     //setUpPhong(textureProgram, [1,1,1], [0,0,0] );
     

@@ -84,39 +84,6 @@
 
      </script>
     
-    <script id="texture-F" type="x-shader/x-fragment">
-         #version 300 es
-
-         // Fragment shader for phong illumination model
-         // Per vertex shading
-
-         precision lowp float;
-             
-         // uvs passed in from vertex shader
-         in vec3 theColor;
-         in vec2 theUV;
-    
-         
-         // the texture to use
-         uniform sampler2D theTexture;
-         
-         // Color that is the result of this shader
-         out vec4 fragColor;
-         
-         vec4 gradient(vec2 uv) {
-          float s = uv.s;
-          float t = uv.t;
-          vec3 color = vec3(.7, .7, .9);
-          
-          return vec4(color[0] * s, color[1] - s, color[2] * t, 1.0);
-         }
-        
-         void main(void) {
-            fragColor = gradient( theUV );
-            //fragColor = texture (theTexture, theUV);
-             
-         }
-    </script>
     
     <!--trying to get basic texture to work -->
         <!-- vertex Shader -->
@@ -218,6 +185,8 @@
     
     <!-- texture images -->
      <img id="world-texture" src="moonTexture.jpg" style="display: none;"> </img>
+    <img id="water-texture" src="waterTexture2.jpg" style="display: none;"> </img>
+    <img id="skyscraper-texture" src="skyscraperTexture.jpg" style="display: none;"> </img>
 
   <script type="text/javascript">
     // Call init once the webpage has loaded
