@@ -161,8 +161,8 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         gl.useProgram(program);
         //Big Moon
 //        
-        var mScale = 40;
-        transformMatrix(bigMoonMatrix, bigMoonMatrix, 't', -20, 4, 60, 0);
+        var mScale = 4;
+        transformMatrix(bigMoonMatrix, bigMoonMatrix, 't', 10, 4, 30, 0);
         transformMatrix(bigMoonMatrix, bigMoonMatrix, 's', mScale, mScale, 5, 0);
         //Bind the VAO and draw
         gl.uniformMatrix4fv (program.uModelT, false, bigMoonMatrix);
@@ -270,15 +270,16 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         gl.useProgram (program);
         let smallMoonMatrix = glMatrix.mat4.create();
       
-//        var mScale = 1
-//        transformMatrix(smallMoonMatrix, smallMoonMatrix, 't', 0, 4, 0, 0);
-//        transformMatrix(smallMoonMatrix, smallMoonMatrix, 's', mScale, mScale, mScale, 0);
+        var mScale = 4
+        transformMatrix(smallMoonMatrix, smallMoonMatrix, 't', -3, 4, 4, 0);
+        transformMatrix(smallMoonMatrix, smallMoonMatrix, 's', mScale, mScale, mScale, 0);
 
         gl.activeTexture (gl.TEXTURE0);
         gl.bindTexture (gl.TEXTURE_2D, myTexture);
         gl.uniform1i (program.uTheTexture, 0);
         gl.uniform3fv (program.uTheta, new Float32Array(angles));
         gl.uniformMatrix4fv (program.uModelT, false, smallMoonMatrix);
+        gl.uniform4fv (program.colorChange, [.6,.6,.6,1]);
       
         //Bind the VAO and draw
         gl.bindVertexArray(smallMoon.VAO);
@@ -460,6 +461,8 @@ function setUpPhong(program, color, lightPosition) {
     program.uTheTexture = gl.getUniformLocation (program, 'theTexture');
     program.uTheta = gl.getUniformLocation (program, 'theta');
       
+    program.colorChange = gl.getUniformLocation( program, 'colorChange');
+    
       
     program.uModelT = gl.getUniformLocation (program, 'modelT');
     program.uViewT = gl.getUniformLocation (program, 'viewT');
@@ -544,7 +547,7 @@ function setUpPhong(program, color, lightPosition) {
     setUpCamera(textureProgram);
       
     // set up Phong parameters
-    setUpPhong(generalProgram, [.1, .9, .9], [-20, 10, 48]);
+    setUpPhong(generalProgram, [.1, .9, .9], [-40, 20, 38]);
     setUpPhong(redColorProgram, [1,.2,.2], [0, -20, 30]);
     //setUpPhong(textureProgram, [1,1,1], [0,0,0] );
     

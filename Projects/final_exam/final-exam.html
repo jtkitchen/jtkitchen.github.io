@@ -129,12 +129,13 @@
     // Vertex Attributes
     in vec3 aVertexPosition; // in model coords
     in vec2 aUV;    // u-v coordinates
-
+    
     // outputs
     out vec2 theUV;  // pass uv's onto the fragment shader
     
     // for object rotation
     uniform vec3 theta;
+    
     // Transforms
     uniform mat4 modelT;
     uniform mat4 viewT;
@@ -186,7 +187,7 @@
              
          // uvs passed in from vertex shader
          in vec2 theUV;
-    
+         uniform vec4 colorChange;
          
          // the texture to use
          uniform sampler2D theTexture;
@@ -195,7 +196,8 @@
          out vec4 fragColor;
 
          void main(void) {
-            fragColor = texture (theTexture, theUV);
+            
+            fragColor = texture (theTexture, theUV) * colorChange;
              
          }
 
