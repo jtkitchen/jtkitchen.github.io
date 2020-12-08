@@ -1,4 +1,4 @@
-  'use strict';
+'use strict';
 
   // Global variables that are set and used
   // across the application
@@ -668,3 +668,7 @@ function setUpTexturePhong(program) {
     // do a draw
     draw();
   }
+
+//Admittedly nothing to write home about when looked at in any sort
+//of objective way; but I am just happy that I was able to get textures,
+//shading, and lighting working at once!
