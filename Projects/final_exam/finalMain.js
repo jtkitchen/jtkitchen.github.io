@@ -87,12 +87,12 @@ function setUpCamera(program) {
     // set up your projection
     let projMatrix = glMatrix.mat4.create();
     //glMatrix.mat4.ortho(projMatrix, -5, 5, -5, 5, 1.0, 300.0);
-    glMatrix.mat4.perspective(projMatrix, radians(80), 1, 3, 100);
+    glMatrix.mat4.perspective(projMatrix, radians(70), 1, 3, 100);
     gl.uniformMatrix4fv (program.uProjT, false, projMatrix);
     
     // set up your view
     let viewMatrix = glMatrix.mat4.create();
-    glMatrix.mat4.lookAt(viewMatrix, [2, 2, -10], [0, 0, 0], [0, 1, 0]);
+    glMatrix.mat4.lookAt(viewMatrix, [2, 2, -10], [0, 2, 0], [0, 1, 0]);
     gl.uniformMatrix4fv (program.uViewT, false, viewMatrix);
 }
 
@@ -125,8 +125,8 @@ function setUpTextures(){
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, worldImage.width, worldImage.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, worldImage);
     
     // set texturing parameters
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     
     // Water Texture
@@ -196,7 +196,7 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         //Big Moon
         
         var mScale = 4;
-        transformMatrix(bigMoonMatrix, bigMoonMatrix, 't', 15, 4, 30, 0);
+        transformMatrix(bigMoonMatrix, bigMoonMatrix, 't', 15, 9, 30, 0);
         transformMatrix(bigMoonMatrix, bigMoonMatrix, 's', mScale, mScale, 3, 0);
         //Bind the VAO and draw
         gl.uniformMatrix4fv (program.uModelT, false, bigMoonMatrix);
@@ -232,7 +232,7 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         gl.drawElements(gl.TRIANGLES, bridgeRoad.indices.length, gl.UNSIGNED_SHORT, 0);
         
         transformMatrix( bridgeRoadMatrix, bridgeTowerLeftMatrix, 's', .07, 40, .5, 0);
-        transformMatrix( bridgeTowerLeftMatrix, bridgeTowerLeftMatrix, 't', 3, 0, 0, 0);
+        transformMatrix( bridgeTowerLeftMatrix, bridgeTowerLeftMatrix, 't', 3, 0, -.6, 0);
         transformMatrix( bridgeTowerLeftMatrix, bridgeTowerLeftMatrix, 'ry', 0, 0, 0, radians(100) );
         
         gl.uniformMatrix4fv (program.uModelT, false, bridgeTowerLeftMatrix);
@@ -240,8 +240,8 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         gl.drawElements(gl.TRIANGLES, bridgeTowerLeft.indices.length, gl.UNSIGNED_SHORT, 0);
         
         transformMatrix( bridgeRoadMatrix, bridgeTowerRightMatrix, 's', .07, 40, .5, 0);
-        transformMatrix( bridgeTowerRightMatrix, bridgeTowerRightMatrix, 't', -3, 0, 0, 0);
-        transformMatrix( bridgeTowerRightMatrix, bridgeTowerRightMatrix, 'ry', 0, 0, 0, radians(80) );
+        transformMatrix( bridgeTowerRightMatrix, bridgeTowerRightMatrix, 't', -3, 0, -.6, 0);
+        transformMatrix( bridgeTowerRightMatrix, bridgeTowerRightMatrix, 'ry', 0, 0, 0, radians(60) );
         
         gl.uniformMatrix4fv (program.uModelT, false, bridgeTowerRightMatrix);
         gl.bindVertexArray(bridgeTowerRight.VAO);
@@ -258,7 +258,7 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         
         transformMatrix( bridgeWireLeftMatrix, bridgeWireLeftMatrix, 't', 1.5, -.4, -.7, 0);
         transformMatrix( bridgeWireLeftMatrix, bridgeWireLeftMatrix, 'rz', 0, 0, 0, radians(-45) );
-        transformMatrix( bridgeWireLeftMatrix, bridgeWireLeftMatrix, 's', .1, 5, .1 )
+        transformMatrix( bridgeWireLeftMatrix, bridgeWireLeftMatrix, 's', .1, 5.8, .1 )
         
         
         gl.uniformMatrix4fv (program.uModelT, false, bridgeWireLeftMatrix);
@@ -409,6 +409,12 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
         gl.enableVertexAttribArray(program.aNormal);
         gl.vertexAttribPointer(program.aNormal, 3, gl.FLOAT, false, 0, 0);
       } else if( program == textureProgram ) {
+        let myNormalBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, myNormalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.points), gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(program.aNormal);
+        gl.vertexAttribPointer(program.aNormal, 3, gl.FLOAT, false, 0, 0);
+          
         let uvBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shape.uv), gl.STATIC_DRAW);
@@ -430,8 +436,6 @@ function transformMatrix( matIn, matOut, type, x, y, z, rad ) {
   }
 
 function setUpPhong(program, color, lightPosition) {
-    
-
     // Recall that you must set the program to be current using
     // the gl useProgram function
     gl.useProgram (program);
@@ -448,7 +452,7 @@ function setUpPhong(program, color, lightPosition) {
     var ambLight = [.1, .6, .8];
     //var lightClr = [.1, .9, .9];
     var lightClr = [color[0], color[1], color[2]];
-    var baseClr = [.1, .2, .3];
+    var baseClr = [.1, .2, .2];
     var specHighlightClr = [.2, .2, .2];
     var Ka = .2;
     var Kd = 1.4;
@@ -462,9 +466,39 @@ function setUpPhong(program, color, lightPosition) {
     gl.uniform1f( program.ka, Ka);
     gl.uniform1f( program.kd, Kd);
     gl.uniform1f( program.ks, Ks);
-    gl.uniform1f( program.ke, Ke);
+    gl.uniform1f( program.ke, Ke); 
+}
+
+function setUpTexturePhong(program) {
+    // Recall that you must set the program to be current using
+    // the gl useProgram function
+    gl.useProgram (program);
     
+    //
+    // set values for all your uniform variables
+    // including the model transform
+    // but not your view and projection transforms as
+    // they are set in setUpCamera()
+    //
     
+    var lightPos = [-3, 4, 4];
+    var ambLight = [.4, .4, .4];
+    var lightClr = [1, 1, 1];
+    var baseClr = [.4, .4, .4];
+    var specHighlightClr = [1, 1, 1];
+    var Ka = 1;
+    var Kd = 1.4;
+    var Ks = 1;
+    var Ke = .4;
+    
+    gl.uniform3fv( program.ambientLight, ambLight);
+    gl.uniform3fv( program.lightPosition, lightPos );
+    gl.uniform3fv( program.lightColor, lightClr );
+    gl.uniform3fv( program.baseColor, baseClr );
+    gl.uniform1f( program.ka, Ka);
+    gl.uniform1f( program.kd, Kd);
+    gl.uniform1f( program.ks, Ks);
+    gl.uniform1f( program.ke, Ke); 
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -626,10 +660,10 @@ function setUpPhong(program, color, lightPosition) {
     setUpCamera(redColorProgram);
     setUpCamera(textureProgram);
       
-    // set up Phong parameters
-    setUpPhong(generalProgram, [.9, .4, .6], [-40, 20, 38]);
+    // set up Phong parameters (light Color, light Position)
+    setUpPhong(generalProgram, [.2, .4, .6], [20, -2, 10]);
     setUpPhong(redColorProgram, [1,.2,.2], [0, -20, 30]);
-    //setUpPhong(textureProgram, [1,1,1], [0,0,0] );
+    setUpTexturePhong(textureProgram);
     
     // do a draw
     draw();
